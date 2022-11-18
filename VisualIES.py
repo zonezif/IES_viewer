@@ -247,24 +247,34 @@ for i in range(len(cord(dd2, angulo))):
 
 x1 = list(range(90, 180, 10))
 x2 = sorted(x1, key=int, reverse=True)
+
 x3 = list(range(10, 90, 10))
 x4 = sorted(x3, key=int, reverse=True)
 
 x = x1+[180]+x2+x4+[0]+x3
 
-
+# tamanho da figura
 plt.figure(figsize=(10, 10))
 plt.axes(projection='polar')
+
+# divisão de graus
 plt.thetagrids(range(0, 360, 10), x)
+
+# titulo do grafico
 plt.title("Distribuição de intensidade luminosa na Curva A", fontsize=16)
+
 plt.fill(rad(coord(ies1.Cd(), angulo)), coord(
     ies1.Cd(), angulo), '-r', alpha=0.2)
+
 plt.plot(rad(coord(ies1.Cd(), angulo)), coord(
     ies1.Cd(), angulo), '-r', alpha=0.2)
+
 plt.plot(rad(coord(ies1.Cd(), angulo+6)),
          coord(ies1.Cd(), angulo+6), '-b', alpha=0.2)
+
 plt.fill(rad(coord(ies1.Cd(), angulo+6)),
          coord(ies1.Cd(), angulo+6), '-b', alpha=0.2)
+
 plt.savefig(page+'CurvaA.png')
 
 plt.figure(figsize=(10, 10))
