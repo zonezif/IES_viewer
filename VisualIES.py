@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 filt = 0.1
-angulo = 4
+angulo = 1
 page = './out/'
 
 
@@ -222,108 +222,69 @@ class IES(object):
 
 ies1 = IES("m1.ies")
 
-ies2 = IES("m2.ies")
-
 result = []
 ignor = []
 
 dd1 = ies1.Cd()
-dd2 = ies2.Cd()
 
-df = difere(dd1, dd2)
+d1 = cord(dd1, angulo)
+d2 = cord(dd1, angulo+1)
+maxmd = [0, 0]
+maxme = [0, 0]
 
-print(df)
+for i in range(len(cord(dd1, angulo))):
 
-for i in range(len(cord(dd2, angulo))):
-    d1 = cord(dd2, angulo)
-    d2 = cord(dd2, angulo+12)
+    if(d1[i] > maxmd[0]):
+        maxmd[0] = d1[i]
+        maxmd[1] = float(i)*np.pi/180-np.pi/2
 
-    if(d1[i] > (med(d1)*filt) and d2[i] > med(d2)*filt):
-        result.append(abs((((d1[i]+0.01)/(d2[i]+0.01))-1)*100))
-        ignor.append(0)
-    else:
-        result.append(0)
-        ignor.append(1)
+
+defase = angulo+int(len(dd1)/2)
+
+if(defase > len(dd1)-1):
+    defase = defase-len(dd1)
+
+d1 = cord(dd1, 4)
+
+for i in range(len(cord(dd1, angulo))):
+
+    if(d1[i] > maxme[0]):
+        maxme[0] = d1[i]
+        maxme[1] = (float(90-i)*np.pi/180+np.pi)
+
+print(maxme[1])
 
 x1 = list(range(90, 180, 10))
 x2 = sorted(x1, key=int, reverse=True)
-
 x3 = list(range(10, 90, 10))
 x4 = sorted(x3, key=int, reverse=True)
 
 x = x1+[180]+x2+x4+[0]+x3
 
-# tamanho da figura
+
 plt.figure(figsize=(10, 10))
 plt.axes(projection='polar')
-
-# divisão de graus
 plt.thetagrids(range(0, 360, 10), x)
 
-# titulo do grafico
-plt.title("Distribuição de intensidade luminosa na Curva A", fontsize=16)
+plt.title("Distribuição de intensidade luminosa na Curva\n Lente:", fontsize=16)
+
 
 plt.fill(rad(coord(ies1.Cd(), angulo)), coord(
     ies1.Cd(), angulo), '-r', alpha=0.2)
 
-plt.plot(rad(coord(ies1.Cd(), angulo)), coord(
-    ies1.Cd(), angulo), '-r', alpha=0.2)
-
-plt.plot(rad(coord(ies1.Cd(), angulo+6)),
-         coord(ies1.Cd(), angulo+6), '-b', alpha=0.2)
-
-plt.fill(rad(coord(ies1.Cd(), angulo+6)),
-         coord(ies1.Cd(), angulo+6), '-b', alpha=0.2)
-
-plt.savefig(page+'CurvaA.png')
-
-plt.figure(figsize=(10, 10))
-plt.axes(projection='polar')
-plt.thetagrids(range(0, 360, 10), x)
-plt.title("Distribuição de intensidade luminosa na Curva B", fontsize=16)
-plt.plot(rad(coord(ies2.Cd(), angulo)), coord(ies2.Cd(), angulo), '-r')
-plt.fill(rad(coord(ies2.Cd(), angulo)), coord(
-    ies2.Cd(), angulo), 'r', alpha=0.2)
-plt.plot(rad(coord(ies2.Cd(), angulo+6)),
-         coord(ies2.Cd(), angulo+6), '-b', alpha=0.2)
-plt.fill(rad(coord(ies2.Cd(), angulo+6)),
-         coord(ies2.Cd(), angulo+6), '-b', alpha=0.2)
-
-plt.savefig(page+'CurvaB.png')
-
-plt.figure(figsize=(10, 10))
-plt.axes(projection='polar')
-plt.thetagrids(range(0, 360, 10), x)
-plt.title(
-    "Distribuição de Difernça da intensidade luminosa de A e B ", fontsize=16)
-plt.plot(rad(result), result, '-b')
-plt.plot(rad(ignor), ignor, '-r')
-plt.quiver(0, 0, 00, 100, color='black',
+plt.quiver(0, 0, maxmd[1], maxmd[0], color='red',
+           angles="xy", scale_units='xy', scale=1.)
+plt.quiver(0, 0, maxme[1], maxme[0], color='blue',
            angles="xy", scale_units='xy', scale=1.)
 
+plt.quiver(0, 0, (maxmd[1]-(maxme[1]+float(90*2-i)*np.pi/180))+np.pi, (maxmd[0]+maxme[0])/2, color='g',
+           angles="xy", scale_units='xy', scale=1.)
 
-plt.legend(["Diferença = "+str(df)[:7]+"%",
-           "Filtro de Ruido de fundo"], loc='best', fontsize=16)
+plt.plot(rad(coord(ies1.Cd(), angulo+6)),
+         coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)
+plt.fill(rad(coord(ies1.Cd(), angulo+6)),
+         coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)
+plt.savefig(page+'CurvaA.png')
 
-plt.savefig(page+'Resultado.png')
 
-print(ies1.Dic()['[_CURRENT]'][0].split()[0])
-'''
-arquivo = open(page+'Resultados.txt', 'w', encoding='utf-8')
-arquivo.write("\tCoparação entre .IES's\n\n")
-arquivo.write("Fluxo 1 = "+str(ies1.Lm())+" Lm\n")
-arquivo.write("Fluxo 2 = "+str(ies2.Lm())+" Lm\n")
-arquivo.write("Diferenca de fluxo = " +
-              str((ies1.Lm()/ies2.Lm()-1)*100)[:7]+"%\n")
-arquivo.write("\n")
-arquivo.write(
-    "Difernça de Distribuição da intensidade luminosa = "+str(df)[:7]+"%\n")
-
-arquivo.write("Potência 1 = "+str(float(ies1.Dic()
-              ['[_VOLTAGE]'][0].split()[0])*float(ies1.Dic()['[_CURRENT]'][0].split()[0]))+"W\n")
-arquivo.write("Potência  2 = "+str(ies2.Dic())+" Lm\n")
-arquivo.write("Diferenca de fluxo = " +
-              str((ies1.Lm()/ies2.Lm()-1)*100)[:7]+"%\n")
-arquivo.close()
-'''
 # plt.show()
