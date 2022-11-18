@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 
 filt = 0.1
-angulo = 6
+angulo = 0
 page = './out/'
 
 
@@ -159,7 +159,7 @@ class IES(object):
         return self.dic
 
 
-ies1 = IES("m1.ies")
+ies1 = IES("m3.ies")
 
 Valplt = coord(ies1.Cd(), angulo)  # valor em Cd para cada angulo
 
@@ -176,6 +176,7 @@ for i, j in zip(Valplt, range(len(Valplt))):
         maxme[1] = float(j)
 print(i, j)
 
+meio = ((maxme[1]-maxmd[1])/2)+maxmd[1]+180
 
 plt.figure(figsize=(10, 10))
 plt.axes(projection='polar')
@@ -192,6 +193,9 @@ plt.quiver(0, 0, maxmd[1]*np.pi/180-np.pi/2, maxmd[0], color='red',
            angles="xy", scale_units='xy', scale=1.)
 plt.fill(rad(Valplt), Valplt, '.r', alpha=0.2)
 plt.quiver(0, 0, maxme[1]*np.pi/180-np.pi/2, maxme[0], color='blue',
+           angles="xy", scale_units='xy', scale=1.)
+
+plt.quiver(0, 0, meio*np.pi/180-np.pi/2, maxme[0], color='g',
            angles="xy", scale_units='xy', scale=1.)
 
 
