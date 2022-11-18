@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 filt = 0.1
-angulo = 1
+angulo = 6
 page = './out/'
 
 
@@ -39,6 +40,62 @@ def abrir(name, nick):
 
     if(nick == 2):
         return(dic)
+
+
+def coord(data, angle):
+
+    ex = angle
+    defase = ex+int(len(data)/2)
+
+    if(defase > len(data)-1):
+        defase = defase-len(data)
+
+    if(ex > len(data)-1):
+        ex = ex-len(data)
+
+    vet = data[defase]
+
+    vet = vet[0:len(vet)-1]
+
+    vet2 = data[ex]
+
+    vet2 = vet2[0:len(vet2)-1]
+
+    val = []
+    l = len(vet2)
+
+    for i in vet:
+        val.append(float(i))
+
+    for i in range(len(vet2)):
+        val.append(float(vet2[l-1-i]))
+    return val
+
+
+def rad(vet):
+    rads = []
+
+    x = range(len(vet))
+
+    for i in x:
+        rads.append(float(i)*np.pi/180-np.pi/2)
+
+    return rads
+
+
+def grad(vet):
+    grads = []
+
+    x = range(int(len(vet)/2), 0, -1)
+    for i in x:
+        grads.append(i)
+
+    x = range(int(len(vet)/2))
+
+    for i in x:
+        grads.append(i)
+
+    return grads
 
 
 class IES(object):
@@ -104,6 +161,55 @@ class IES(object):
 
 ies1 = IES("m1.ies")
 
-print(len(ies1.Cd()[24]))
+Valplt = coord(ies1.Cd(), angulo)  # valor em Cd para cada angulo
 
-# plt.show()
+maxmd = [0, 0]
+maxme = [0, 0]
+
+for i, j in zip(Valplt, range(len(Valplt))):
+    if (i > maxmd[0] and j < int(len(Valplt)/2)):
+        maxmd[0] = i
+        maxmd[1] = float(j)
+
+    if (i > maxme[0] and j > int(len(Valplt)/2)):
+        maxme[0] = i
+        maxme[1] = float(j)
+print(i, j)
+
+
+plt.figure(figsize=(10, 10))
+plt.axes(projection='polar')
+
+x1 = list(range(90, 180, 10))
+x2 = sorted(x1, key=int, reverse=True)
+x3 = list(range(10, 90, 10))
+x4 = sorted(x3, key=int, reverse=True)
+x = x1+[180]+x2+x4+[0]+x3
+
+plt.thetagrids(range(0, 360, 10), x)
+plt.title("Distribuição de intensidade luminosa na Curva\n", fontsize=16)
+plt.quiver(0, 0, maxmd[1]*np.pi/180-np.pi/2, maxmd[0], color='red',
+           angles="xy", scale_units='xy', scale=1.)
+plt.fill(rad(Valplt), Valplt, '.r', alpha=0.2)
+plt.quiver(0, 0, maxme[1]*np.pi/180-np.pi/2, maxme[0], color='blue',
+           angles="xy", scale_units='xy', scale=1.)
+
+
+plt.figure(figsize=(10, 10))
+plt.plot(grad(Valplt), Valplt[180:] + Valplt[0:180])
+plt.title('Distribuição de intensidade luminosa\n')
+plt.show()
+
+'''plt.quiver(0, 0, maxmd[1], maxmd[0], color='red',
+           angles="xy", scale_units='xy', scale=1.)
+plt.quiver(0, 0, maxme[1], maxme[0], color='blue',
+           angles="xy", scale_units='xy', scale=1.)
+
+plt.quiver(0, 0, (maxmd[1]-(maxme[1]+float(90*2-i)*np.pi/180))+np.pi, (maxmd[0]+maxme[0])/2, color='g',
+           angles="xy", scale_units='xy', scale=1.)'''
+
+'''plt.plot(rad(coord(ies1.Cd(), angulo+6)),
+         coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)'''
+'''plt.fill(rad(coord(ies1.Cd(), angulo+6)),
+         coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)'''
+# plt.savefig(page+'Saida.png')
