@@ -308,7 +308,7 @@ plt.legend(["Diferença = "+str(df)[:7]+"%",
 plt.savefig(page+'Resultado.png')
 
 print(ies1.Dic()['[_CURRENT]'][0].split()[0])
-
+'''
 arquivo = open(page+'Resultados.txt', 'w', encoding='utf-8')
 arquivo.write("\tCoparação entre .IES's\n\n")
 arquivo.write("Fluxo 1 = "+str(ies1.Lm())+" Lm\n")
@@ -325,5 +325,5 @@ arquivo.write("Potência  2 = "+str(ies2.Dic())+" Lm\n")
 arquivo.write("Diferenca de fluxo = " +
               str((ies1.Lm()/ies2.Lm()-1)*100)[:7]+"%\n")
 arquivo.close()
-
+'''
 # plt.show()
