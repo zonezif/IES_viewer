@@ -284,7 +284,7 @@ plt.plot(rad(coord(ies1.Cd(), angulo+6)),
          coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)
 plt.fill(rad(coord(ies1.Cd(), angulo+6)),
          coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)
-plt.savefig(page+'CurvaA.png')
+plt.savefig(page+'Saida.png')
 
 
 # plt.show()
