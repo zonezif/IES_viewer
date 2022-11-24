@@ -4,7 +4,7 @@ import math
 import statistics as st
 
 filt = 0.1
-angulo = 0
+angulo = 6
 page = './out/'
 
 
@@ -169,7 +169,7 @@ class IES(object):
         return self.dic
 
 
-ies1 = IES("m1.ies")
+ies1 = IES("mp.ies")
 
 Valplt = coord(ies1.Cd(), angulo)  # valor em Cd para cada angulo
 
@@ -206,8 +206,12 @@ plt.fill(rad(Valplt), Valplt, '.r', alpha=0.2)
 plt.quiver(0, 0, maxme[1]*np.pi/180-np.pi/2, maxme[0], color='blue',
            angles="xy", scale_units='xy', scale=1.)
 
-plt.quiver(0, 0, meio*np.pi/180-np.pi/2, maxme[0], color='g',
+plt.quiver(0, 0, meio*np.pi/180-np.pi/2, (maxme[0]+maxme[0])/2, color='g',
            angles="xy", scale_units='xy', scale=1.)
+
+plt.text((meio+15)*np.pi/180-np.pi/2, (maxme[0]+maxme[0])/4, 'Diferença em graus = ' +
+         str(360-meio)[:5]+" °")
+
 plt.savefig(page+'Distribuição.png')
 # plt.show()
 
