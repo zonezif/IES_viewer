@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 
 filt = 0.1
-angulo = 0
+angulo = 6
 page = './out/'
 
 
@@ -159,7 +159,7 @@ class IES(object):
         return self.dic
 
 
-ies1 = IES("m3.ies")
+ies1 = IES("m1.ies")
 
 Valplt = coord(ies1.Cd(), angulo)  # valor em Cd para cada angulo
 
@@ -200,8 +200,11 @@ plt.quiver(0, 0, meio*np.pi/180-np.pi/2, maxme[0], color='g',
 
 
 plt.figure(figsize=(10, 10))
-plt.plot(grad(Valplt), Valplt[180:] + Valplt[0:180])
-plt.title('Distribuição de intensidade luminosa\n')
+plt.plot(grad(Valplt)[:180], Valplt[180:], color='blue')
+
+plt.plot(grad(Valplt)[180:], Valplt[0:180], color='red')
+
+plt.title('Simetria da distribuição luminosa\n')
 plt.show()
 
 '''plt.quiver(0, 0, maxmd[1], maxmd[0], color='red',
