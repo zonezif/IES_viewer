@@ -4,7 +4,7 @@ import math
 import statistics as st
 
 filt = 0.1
-angulo = 6
+angulo = 0
 page = './out/'
 
 
@@ -169,7 +169,7 @@ class IES(object):
         return self.dic
 
 
-ies1 = IES("m2.ies")
+ies1 = IES("m1.ies")
 
 Valplt = coord(ies1.Cd(), angulo)  # valor em Cd para cada angulo
 
@@ -209,7 +209,7 @@ plt.quiver(0, 0, maxme[1]*np.pi/180-np.pi/2, maxme[0], color='blue',
 plt.quiver(0, 0, meio*np.pi/180-np.pi/2, maxme[0], color='g',
            angles="xy", scale_units='xy', scale=1.)
 plt.savefig(page+'Distribuição.png')
-
+# plt.show()
 
 plt.figure(figsize=(10, 10))
 plt.subplot(2, 1, 1)
@@ -231,15 +231,15 @@ plt.subplot(2, 1, 2)
 plt.fill(grad(Valplt)[:180], dif(Valplt[180:],
          Valplt[0:180]), color='r', alpha=0.2)
 
-plt.text(8, 13, 'Média da diferença = '+str(st.mean(dif(Valplt[180:],
-                                                        Valplt[0:180])))[:5]+"%", style='italic')
+plt.text(8, st.mean(dif(Valplt[180:], Valplt[0:180])), 'Média da diferença = '+str(st.mean(dif(Valplt[180:],
+                                                                                               Valplt[0:180])))[:5]+"%", style='italic')
 '''plt.scatter(grad(Valplt)[:180], dif(Valplt[180:],
                                     Valplt[0:180]), c=dif(Valplt[180:], Valplt[0:180]))'''
 plt.axhline(y=st.mean(dif(Valplt[180:],
                           Valplt[0:180])), color='r', linestyle='-', alpha=0.6)
 
 plt.savefig(page+'Simetria.png')
-plt.show()
+# plt.show()
 
 '''plt.quiver(0, 0, maxmd[1], maxmd[0], color='red',
            angles="xy", scale_units='xy', scale=1.)
