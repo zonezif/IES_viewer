@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import statistics as st
+import os
 
 filt = 0.1
 angulo = 6
@@ -99,11 +100,22 @@ def grad(vet):
     return grads
 
 
-def dif(v1, v2):
+def dif(v1, v2, p):
     difer = []
-    v2.reverse()
-    for i, j in zip(v1, v2):
-        difer.append((np.sqrt((i-j)**2))/100)
+    if(p == 1):
+        v2.reverse()
+        for i, j in zip(v1, v2):
+            difer.append(((np.sqrt((i-j)**2))/max(i, j))*100)
+    if(p == 3):
+        v2.reverse()
+        for i, j in zip(v1, v2):
+            difer.append(np.sqrt((i-j)**2))
+
+    if(p == 2):
+        return ((np.sqrt(v1-v2)**2))
+
+    if(p == 0):
+        return (100*(np.sqrt(v1-v2)**2)/max(v1, v2))
 
     return difer
 
@@ -169,92 +181,133 @@ class IES(object):
         return self.dic
 
 
-ies1 = IES("mp.ies")
+def Visual(arq, sub, ang):
 
-Valplt = coord(ies1.Cd(), angulo)  # valor em Cd para cada angulo
+    print('Abrindo...> ' + arq + ' >>>'+'IES_' + arq)
 
-maxmd = [0, 0]
-maxme = [0, 0]
+    ies1 = IES(arq)
+    number = (len(ies1.AngH())-1)/2-ang*(len(ies1.AngH())-1)/4
+    angulo = int(number)
 
-for i, j in zip(Valplt, range(len(Valplt))):
-    if (i > maxmd[0] and j < int(len(Valplt)/2)):
-        maxmd[0] = i
-        maxmd[1] = float(j)
+    if (os.path.exists('./out/'+arq[:int(len(arq)-4)]) != 1):
+        os.makedirs('./out/' + arq[:int(len(arq)-4)])
 
-    if (i > maxme[0] and j > int(len(Valplt)/2)):
-        maxme[0] = i
-        maxme[1] = float(j)
-print(i, j)
+    Valplt = coord(ies1.Cd(), angulo)  # valor em Cd para cada angulo
 
-meio = ((maxme[1]-maxmd[1])/2)+maxmd[1]+180
+    maxmd = [0, 0]
+    maxme = [0, 0]
 
-plt.figure(figsize=(10, 10))
+    for i, j in zip(Valplt, range(len(Valplt))):
+        if (i > maxmd[0] and j < int(len(Valplt)/2)):
+            maxmd[0] = i
+            maxmd[1] = float(j)
 
-plt.axes(projection='polar')
+        if (i > maxme[0] and j > int(len(Valplt)/2)):
+            maxme[0] = i
+            maxme[1] = float(j)
+    print(i, j)
 
-x1 = list(range(90, 180, 10))
-x2 = sorted(x1, key=int, reverse=True)
-x3 = list(range(10, 90, 10))
-x4 = sorted(x3, key=int, reverse=True)
-x = x1+[180]+x2+x4+[0]+x3
+    meio = ((maxme[1]-maxmd[1])/2)+maxmd[1]+180
 
-plt.thetagrids(range(0, 360, 10), x)
-plt.title("Distribuição de intensidade luminosa na Curva\n", fontsize=16)
-plt.quiver(0, 0, maxmd[1]*np.pi/180-np.pi/2, maxmd[0], color='red',
-           angles="xy", scale_units='xy', scale=1.)
-plt.fill(rad(Valplt), Valplt, '.r', alpha=0.2)
-plt.quiver(0, 0, maxme[1]*np.pi/180-np.pi/2, maxme[0], color='blue',
-           angles="xy", scale_units='xy', scale=1.)
+    plt.figure(figsize=(10, 10))
 
-plt.quiver(0, 0, meio*np.pi/180-np.pi/2, (maxme[0]+maxme[0])/2, color='g',
-           angles="xy", scale_units='xy', scale=1.)
+    plt.axes(projection='polar')
 
-plt.text((meio+15)*np.pi/180-np.pi/2, (maxme[0]+maxme[0])/4, 'Diferença em graus = ' +
-         str(360-meio)[:5]+" °")
+    x1 = list(range(90, 180, 10))
+    x2 = sorted(x1, key=int, reverse=True)
+    x3 = list(range(10, 90, 10))
+    x4 = sorted(x3, key=int, reverse=True)
+    x = x1+[180]+x2+x4+[0]+x3
 
-plt.savefig(page+'Distribuição.png')
-# plt.show()
+    plt.thetagrids(range(0, 360, 10), x)
+    plt.title("Distribuição de intensidade luminosa na Curva\n" +
+              sub, fontsize=16)
+    plt.quiver(0, 0, maxmd[1]*np.pi/180-np.pi/2, maxmd[0], color='red',
+               angles="xy", scale_units='xy', scale=1.)
+    plt.fill(rad(Valplt), Valplt, '.r', alpha=0.2)
+    plt.quiver(0, 0, maxme[1]*np.pi/180-np.pi/2, maxme[0], color='blue',
+               angles="xy", scale_units='xy', scale=1.)
 
-plt.figure(figsize=(10, 10))
-plt.subplot(2, 1, 1)
-plt.title('Simetria da distribuição luminosa\n')
-plt.plot(grad(Valplt)[:180], Valplt[180:], color='blue')
+    plt.quiver(0, 0, meio*np.pi/180-np.pi/2, (maxme[0]+maxme[0])/2, color='g',
+               angles="xy", scale_units='xy', scale=1.)
 
-plt.plot(grad(Valplt)[180:], Valplt[0:180], color='red')
+    plt.text((meio+15)*np.pi/180-np.pi/2, (maxme[0]+maxme[0])/4, 'Diferença em graus = ' +
+             str(360-meio)[:5]+" °")
 
-plt.axhline(y=max(Valplt[0:180]), color='r', linestyle='-.', alpha=0.5)
+    plt.savefig('./out/' + arq[:int(len(arq)-4)] +
+                '/'+'Distribuição_'+sub+'.png')
+    # plt.show()
 
-plt.axhline(y=max(Valplt[180:]), color='b', linestyle='-.', alpha=0.5)
+    plt.figure(figsize=(10, 10))
+    plt.subplot(2, 1, 1)
+    plt.title('Simetria da distribuição luminosa\n'+sub)
+    plt.plot(grad(Valplt)[:180], Valplt[180:], color='blue')
 
-plt.axvline(x=maxmd[1], color='r', linestyle=':', alpha=0.5)
+    plt.plot(grad(Valplt)[180:], Valplt[0:180], color='red')
 
-plt.axvline(x=360-maxme[1], color='b', linestyle=':', alpha=0.5)
+    plt.axhline(y=max(Valplt[0:180]), color='r', linestyle='-.', alpha=0.5)
+
+    plt.axhline(y=max(Valplt[180:]), color='b', linestyle='-.', alpha=0.5)
+
+    plt.axvline(x=maxmd[1], color='r', linestyle=':', alpha=0.5)
+
+    plt.axvline(x=360-maxme[1], color='b', linestyle=':', alpha=0.5)
+
+    plt.text(8, dif(max(Valplt[0:180]), max(Valplt[180:]), 2), 'Média da diferença = '+str(
+        dif(max(Valplt[0:180]), max(Valplt[180:]), 0))[:5]+"%"+"\nDiferença absoluta = "+str(dif(max(Valplt[0:180]), max(Valplt[180:]), 2)).split(".")[0]+"Cd", style='italic')
+
+    plt.subplot(2, 1, 2)
+    plt.fill(grad(Valplt)[:180], dif(Valplt[180:],
+                                     Valplt[0:180], 3), color='r', alpha=0.2)
+
+    print(dif(max(Valplt[0:180]), max(Valplt[180:]), 0))
+
+    plt.text(8, max(dif(Valplt[180:], Valplt[0:180], 3)), 'Máxima da diferença = '+str(max(dif(Valplt[180:],
+                                                                                               Valplt[0:180], 3)))[:5], style='italic')
+    plt.text(8, st.mean(dif(Valplt[180:], Valplt[0:180], 3)), 'Média da diferença = '+str(st.mean(dif(Valplt[180:],
+                                                                                                      Valplt[0:180], 3)))[:5], style='italic')
+    '''plt.scatter(grad(Valplt)[:180], dif(Valplt[180:],
+                                        Valplt[0:180]), c=dif(Valplt[180:], Valplt[0:180]))'''
+    plt.axhline(y=st.mean(dif(Valplt[180:],
+                              Valplt[0:180], 3)), color='r', linestyle='-', alpha=0.6)
+
+    plt.savefig('./out/' + arq[:int(len(arq)-4)]+'/'+'Simetria_'+sub+'.png')
 
 
-plt.subplot(2, 1, 2)
-plt.fill(grad(Valplt)[:180], dif(Valplt[180:],
-         Valplt[0:180]), color='r', alpha=0.2)
+    # plt.show()
+key = 's'
 
-plt.text(8, st.mean(dif(Valplt[180:], Valplt[0:180])), 'Média da diferença = '+str(st.mean(dif(Valplt[180:],
-                                                                                               Valplt[0:180])))[:5]+"%", style='italic')
-'''plt.scatter(grad(Valplt)[:180], dif(Valplt[180:],
-                                    Valplt[0:180]), c=dif(Valplt[180:], Valplt[0:180]))'''
-plt.axhline(y=st.mean(dif(Valplt[180:],
-                          Valplt[0:180])), color='r', linestyle='-', alpha=0.6)
+while (key == 's'):
+    dire = input("\nArraste a pasta aqui!!").replace('\"', '')
+    os.system('cls')
+    dire = dire.replace('\'', '')
+    dire = dire.replace('&', '')
+    if (dire[0] == " "):
+        dire = dire[1:]
+    print(dire)
+    os.chdir(dire)
 
-plt.savefig(page+'Simetria.png')
-# plt.show()
+    page = os.getcwd()
+    lista = os.listdir(page)
+    IESs = []
+    cwd = page
 
-'''plt.quiver(0, 0, maxmd[1], maxmd[0], color='red',
-           angles="xy", scale_units='xy', scale=1.)
-plt.quiver(0, 0, maxme[1], maxme[0], color='blue',
-           angles="xy", scale_units='xy', scale=1.)
+    for i in lista:
+        arq = i.split('.')
+        if (len(arq) > 1):
+            if arq[1] == 'ies':
+                if (arq[0].count('IES_') != 1):
+                    IESs.append(i)
 
-plt.quiver(0, 0, (maxmd[1]-(maxme[1]+float(90*2-i)*np.pi/180))+np.pi, (maxmd[0]+maxme[0])/2, color='g',
-           angles="xy", scale_units='xy', scale=1.)'''
+    if (os.path.exists('out') != 1):
+        os.makedirs(page+'//out')
+        page += page+'//out'
 
-'''plt.plot(rad(coord(ies1.Cd(), angulo+6)),
-         coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)'''
-'''plt.fill(rad(coord(ies1.Cd(), angulo+6)),
-         coord(ies1.Cd(), angulo+6), '-b', alpha=0.1)'''
-# plt.savefig(page+'Saida.png')
+    # convert('m2.ies')
+    u = 0
+    for i in IESs:
+        Visual(i, '90_270', 0)
+        Visual(i, '180_90', 1)
+        u += 1
+
+    print('\n', u, 'Arquivos convertidos')
