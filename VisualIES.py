@@ -186,6 +186,7 @@ def Visual(arq, sub, ang):
     print('Abrindo...> ' + arq + ' >>>'+'IES_' + arq)
 
     ies1 = IES(arq)
+
     number = (len(ies1.AngH())-1)/2-ang*(len(ies1.AngH())-1)/4
     angulo = int(number)
 
@@ -272,7 +273,6 @@ def Visual(arq, sub, ang):
                               Valplt[0:180], 3)), color='r', linestyle='-', alpha=0.6)
 
     plt.savefig('./out/' + arq[:int(len(arq)-4)]+'/'+'Simetria_'+sub+'.png')
-
 
     # plt.show()
 key = 's'
